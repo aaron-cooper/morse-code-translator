@@ -3,21 +3,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern void lcd_init(void);
-//extern void lcd_puts(char* s);
+#include "lcd.h"
 
 void main(void){
+
+    int i = 0;
+    while(i < 100) i++;
+    //temporary until I write driver for w65c22
+    __asm__("lda #$ff");
+    __asm__("sta %%0110000000000011");
+    __asm__("sta %%0110000000000010");
     lcd_init();
-    // char* uwu = malloc(20);
-    // lcd_init();
-    // if (!uwu){
-    //     lcd_puts("Error!");
-    //     return;
-    // }
+    lcd_puts("I'm working OwO");
 
-    // memcpy(uwu, "It worked!", 20);
-
-    // lcd_puts(uwu);
 
     return;
 }

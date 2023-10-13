@@ -1,14 +1,10 @@
-RS = %001
-RW = %010
-E  = %100
-
 .include "zeropage.inc"
 
 .export _lcd_short_wait
 .export _lcd_ir_read
 .export _lcd_ir_write
-.export _lcd_dr_read
-.export _lcd_dr_write
+.export _lcd_data_read
+.export _lcd_data_write
 
 direction_a = %0110000000000011
 port_a = %0110000000000001
@@ -41,7 +37,7 @@ port_b = %0110000000000000
 .endproc
 
 ;write contents of A to the LCD's data register
-.proc _lcd_dr_write: near
+.proc _lcd_data_write: near
     sta port_a
     lda #1 ;RS = 1, RW = 0
     sta port_b
@@ -55,8 +51,7 @@ port_b = %0110000000000000
     sta direction_a
     lda #%10 ;RW = 1, RS = 0
     sta port_b
-    jsr lcd_pulse_E
-    lda port_a
+    jsr lcd_pulse_E_and_read
     sta tmp1
     lda #$ff
     sta direction_a
@@ -65,8 +60,8 @@ port_b = %0110000000000000
     rts
 .endproc
 
-; read the LCD's data register, return as unsigned char
-.proc _lcd_dr_read: near
+; read the LCD's data register, return as unsigned char ;todo repeat fix from above
+.proc _lcd_data_read: near
     lda #$00
     sta direction_a
     lda #%11 ;RW = 1, RS = 1
@@ -88,4 +83,15 @@ lcd_pulse_E:
     sta port_b
     and #%11111011
     sta port_b
+    rts
+
+lcd_pulse_E_and_read:
+    ora #%100
+    sta port_b
+    lda port_a
+    sta tmp2
+    lda port_b
+    and #%11111011
+    sta port_b
+    lda tmp2
     rts
