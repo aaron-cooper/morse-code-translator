@@ -2,12 +2,21 @@
 #define BUTTONS_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
-#define BUTTON_A(x) ((0b00001000 & x) != 0)
-#define BUTTON_B(x) ((0b00010000 & x) != 0)
-#define BUTTON_C(x) ((0b00100000 & x) != 0)
+#define BUTTON_A 0b00001000
+#define BUTTON_B 0b00010000
+#define BUTTON_C 0b00100000
+
+typedef struct {
+    unsigned long cooldown;
+    bool pressed;
+} button_tracker_state;
 
 extern void buttons_preamble(void);
-extern uint8_t buttons_get_state(void);
+
+button_tracker_state* buttons_new_tracker(void);
+void buttons_free_tracker(button_tracker_state* tracker);
+bool buttons_pressed(button_tracker_state* tracker, uint8_t button);
 
 #endif

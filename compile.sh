@@ -1,5 +1,5 @@
 # your C files
-C_FILES=(main.c lcd.c time.c)
+C_FILES=(main.c lcd.c time.c buttons.c)
 
 # your assembly files (don't include the ones that come with this repo)
 ASM_FILES=(input.s lcd.s buttons.s time.s)
