@@ -6,6 +6,6 @@
 
 .segment "VECTORS"
 
-.addr 0
+.addr _timer_interrupt_handle
 .addr _init
 .addr _timer_interrupt_handle

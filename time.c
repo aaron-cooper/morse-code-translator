@@ -7,7 +7,7 @@
 #define T1CH_ADDR 0x6005
 #define IER_ADDR 0x600E
 
-unsigned int time = 0;
+extern unsigned long time;
 
 void timer_init(void){
     *(uint8_t*)IER_ADDR = 0b11000000;
@@ -17,18 +17,8 @@ void timer_init(void){
     *(uint8_t*)T1CH_ADDR = 0x03;
 }
 
-void timer_interrupt_handle(void){
-    __asm__("pha");
-    __asm__("phx");
-    time++;
-    __asm__("lda %w", T1CL_ADDR);
-    __asm__("plx");
-    __asm__("pla");
-    __asm__("rti");
-}
-
-unsigned int timer_get_elapsed_time(void){
-    unsigned int time_copy;
+unsigned long timer_get_elapsed_time(void){
+    unsigned long time_copy;
     // disable interrupt while copying to prevent funny stuff from happening
     // if this happens to be called at the same time that the timer expires
     __asm__("sei");

@@ -6,7 +6,7 @@
 
 
 void timer_init(void);
-unsigned int timer_get_elapsed_time(void);
+unsigned long timer_get_elapsed_time(void);
 
 
 #endif
