@@ -2,7 +2,7 @@
 C_FILES=(main.c lcd.c time.c)
 
 # your assembly files (don't include the ones that come with this repo)
-ASM_FILES=(input.s lcd.s)
+ASM_FILES=(input.s lcd.s buttons.s)
 
 ASM_FILES+=(vectors.s)
 
