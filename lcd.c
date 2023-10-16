@@ -4,6 +4,7 @@
 extern void lcd_short_wait(void);
 extern void lcd_ir_write(uint8_t instruction);
 extern uint8_t lcd_ir_read(void);
+extern void lcd_preamble(void);
 
 void lcd_wait_for_busy_clear(void);
 void lcd_wait_for_busy_clear(void){
@@ -58,12 +59,14 @@ void lcd_ddram_addr_set(uint8_t addr){
 }
 
 void lcd_init(void){
+    lcd_preamble();
     lcd_function_set(DATA_LENGTH_8_BIT | TWO_LINES | FONT_SIZE_8_DOTS);
     lcd_display_control(DISPLAY_ENABLE | CURSOR_ENABLE | BLINKING_ENABLE);
     lcd_set_entry_mode(CURSOR_RIGHT);
 }
 
 void lcd_putc(char c){
+    lcd_wait_for_busy_clear();
     lcd_data_write(c);
 }
 

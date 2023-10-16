@@ -1,19 +1,24 @@
 .include "zeropage.inc"
+.include "w65c22.inc"
 
 .export _lcd_short_wait
 .export _lcd_ir_read
 .export _lcd_ir_write
 .export _lcd_data_read
 .export _lcd_data_write
-
-direction_a = %0110000000000011
-port_a = %0110000000000001
-
-direction_b = %0110000000000010
-port_b = %0110000000000000
-
+.export _lcd_preamble
 
 .segment "CODE"
+
+; Things that need to be done before the LCD can be used. Needs be called
+; before touching the lcd, calling multiple times won't hurt anything.
+.proc _lcd_preamble: near
+    lda #$ff
+    sta w65c22_port_a_direction
+    lda w65c22_port_b_direction ;port b gets used for other stuff, so don't change bits 3-7
+    ora #%00000111
+    sta w65c22_port_b_direction ;port b gets used for other stuff, so don't change bits 3-7
+.endproc
 
 ;waits for 38 or more cycles to pass, this should be enough time for the LCD
 ;to complete all but the "Return home" instruction. Calling this is usually
@@ -29,18 +34,18 @@ port_b = %0110000000000000
 
 ;write to the LCD's instruction register. This is used for most commands
 .proc _lcd_ir_write: near
-    sta port_a
+    sta w65c22_port_a
     lda #0 ;RS = 0, RW = 0
-    sta port_b
+    sta w65c22_port_b
     jsr lcd_pulse_E
     rts
 .endproc
 
 ;write contents of A to the LCD's data register
 .proc _lcd_data_write: near
-    sta port_a
+    sta w65c22_port_a
     lda #1 ;RS = 1, RW = 0
-    sta port_b
+    sta w65c22_port_b
     jsr lcd_pulse_E
     rts
 .endproc
@@ -48,13 +53,13 @@ port_b = %0110000000000000
 ; read the LCD's instruction register, return as unsigned char
 .proc _lcd_ir_read: near
     lda #$00
-    sta direction_a
+    sta w65c22_port_a_direction
     lda #%10 ;RW = 1, RS = 0
-    sta port_b
+    sta w65c22_port_b
     jsr lcd_pulse_E_and_read
     sta tmp1
     lda #$ff
-    sta direction_a
+    sta w65c22_port_a_direction
     lda tmp1
     ldx #0
     rts
@@ -63,35 +68,39 @@ port_b = %0110000000000000
 ; read the LCD's data register, return as unsigned char ;todo repeat fix from above
 .proc _lcd_data_read: near
     lda #$00
-    sta direction_a
+    sta w65c22_port_a_direction
     lda #%11 ;RW = 1, RS = 1
-    sta port_b
+    sta w65c22_port_b
     jsr lcd_pulse_E
-    lda port_a
+    lda w65c22_port_a
     sta tmp1
     lda #$ff
-    sta direction_a
+    sta w65c22_port_a_direction
     lda tmp1
     ldx #0
     rts
 .endproc
 
 ; the contents of A (aside from bit 2 which corresponds to E) will be written to
-; port_b as is
+; w65c22_port_b as is
 lcd_pulse_E:
+    sei
     ora #%100
-    sta port_b
+    sta w65c22_port_b
     and #%11111011
-    sta port_b
+    sta w65c22_port_b
+    cli
     rts
 
 lcd_pulse_E_and_read:
+    sei
     ora #%100
-    sta port_b
-    lda port_a
+    sta w65c22_port_b
+    lda w65c22_port_a
     sta tmp2
-    lda port_b
+    lda w65c22_port_b
     and #%11111011
-    sta port_b
+    sta w65c22_port_b
     lda tmp2
+    cli
     rts
