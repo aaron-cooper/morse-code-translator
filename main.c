@@ -4,17 +4,23 @@
 #include <string.h>
 
 #include "lcd.h"
+#include "time.h"
 
 void main(void){
-
+    char* count_str = (char*)malloc(20);
+    uint16_t t = 4000;
     int i = 0;
-    while(i < 100) i++;
-    //temporary until I write driver for w65c22
-    __asm__("lda #$ff");
-    __asm__("sta %%0110000000000011");
-    __asm__("sta %%0110000000000010");
     lcd_init();
-    lcd_puts("I'm working OwO");
+    timer_init();
+
+    while(1){
+        if (timer_get_elapsed_time() != t){
+            t = timer_get_elapsed_time();
+            lcd_ddram_addr_set(0);
+            sprintf(count_str, "%d", t);
+            lcd_puts(count_str);
+        }
+    }
 
 
     return;
