@@ -1,20 +1,46 @@
 PROGRAM=rom.bin
 
+C_SOURCE_DIR=./c/src
+C_INCLUDE_DIR=./c/include
+ASM_SOURCE_DIR=./asm/src
+ASM_INCLUDE_DIR=./asm/include
+
+BUILD_DIR=./build
+
+CA=ca65
+AFLAGS = --cpu 65c02 -I $(ASM_INCLUDE_DIR)
+
+CC=cc65
+CFLAGS= --cpu 65c02 -I $(C_INCLUDE_DIR)
+
+LD=ld65
+LDFLAGS=
+
 C_SOURCES = main.c lcd.c time.c buttons.c
-ASM_SOURCES = $(C_SOURCES:%.c=_%.s) input.s lcd.s time.s vectors.s
+ASM_SOURCES = input.s lcd.s time.s vectors.s
 
-all: $(PROGRAM)
+MKDIR_P=mkdir
 
-$(PROGRAM): custom.cfg $(ASM_SOURCES:%.s=%.o) custom.lib
-	ld65 -C $^
+RM_P=rm
 
-_%.s: %.c
-	cc65 --cpu 65c02 $^ -o $@
+all: $(BUILD_DIR) $(PROGRAM:%=$(BUILD_DIR)/%)
 
-%.o: %.s
-	ca65 --cpu 65c02 $^
+$(PROGRAM:%=$(BUILD_DIR)/%): custom.cfg $(ASM_SOURCES:%.s=$(BUILD_DIR)/%.o) $(C_SOURCES:%.c=$(BUILD_DIR)/_%.o) custom.lib
+	$(LD) $(LDFLAGS) -C $^ -o $@
+
+$(BUILD_DIR)/_%.s: $(C_SOURCE_DIR)/%.c
+	$(CC) $(CFLAGS) $^ -o $@
+
+$(BUILD_DIR)/%.o: $(BUILD_DIR)/%.s
+	$(CA) $(AFLAGS) $^ -o $@
+
+$(BUILD_DIR)/%.o: $(ASM_SOURCE_DIR)/%.s
+	$(CA) $(AFLAGS) $^ -o $@
+
+$(BUILD_DIR):
+	$(MKDIR_P) $(BUILD_DIR)
 
 clean:
-	rm *.o _*.s rom.bin
+	$(RM_P) $(BUILD_DIR) -r
 
-.PHONY: clean all
+.PHONY: all
