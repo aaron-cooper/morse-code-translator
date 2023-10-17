@@ -14,7 +14,7 @@ typedef struct {
     uint8_t button;
 } button_tracker_state;
 
-extern void buttons_preamble(void);
+void buttons_preamble(void);
 
 button_tracker_state* buttons_new_tracker(uint8_t button);
 void buttons_free_tracker(button_tracker_state* tracker);

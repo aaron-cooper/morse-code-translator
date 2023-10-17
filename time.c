@@ -9,12 +9,18 @@
 
 extern unsigned long time;
 
+uint8_t initialized = 0;
+
 void timer_init(void){
+    if (initialized){
+        return;
+    }
     *(uint8_t*)IER_ADDR = 0b11000000;
     *(uint8_t*)ACR_ADDR = 0b01000000;
     //0x3e6 = 998
     *(uint8_t*)T1CL_ADDR = 0xe6;
     *(uint8_t*)T1CH_ADDR = 0x03;
+    initialized = 1;
 }
 
 unsigned long timer_get_elapsed_time(void){

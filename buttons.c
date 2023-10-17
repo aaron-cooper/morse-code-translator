@@ -1,10 +1,20 @@
 #include <stdlib.h>
 #include "buttons.h"
 #include "time.h"
+#include "w65c22.h"
 
 #define BUTTON_COOLDOWN 50
 
 extern uint8_t buttons_get_state_raw(void);
+
+void buttons_preamble(void){
+    // set bits 3-5 to input without touching remaining bits
+    (*W65C22_PORT_B_DIRECTION) = 0b11000111 & (*W65C22_PORT_B_DIRECTION);
+}
+
+uint8_t buttons_get_state_raw(){
+    return *W65C22_PORT_B;
+}
 
 button_tracker_state* buttons_new_tracker(uint8_t button){
     button_tracker_state* new_state = malloc(sizeof(button_tracker_state));
