@@ -1,4 +1,4 @@
-.inc "w65c22.inc"
+.include "w65c22.inc"
 
 .export _time
 .export _timer_interrupt_handle
