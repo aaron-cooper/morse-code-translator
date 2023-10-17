@@ -11,12 +11,13 @@
 typedef struct {
     unsigned long cooldown;
     bool pressed;
+    uint8_t button;
 } button_tracker_state;
 
 extern void buttons_preamble(void);
 
-button_tracker_state* buttons_new_tracker(void);
+button_tracker_state* buttons_new_tracker(uint8_t button);
 void buttons_free_tracker(button_tracker_state* tracker);
-bool buttons_pressed(button_tracker_state* tracker, uint8_t button);
+bool buttons_pressed(button_tracker_state* tracker);
 
 #endif

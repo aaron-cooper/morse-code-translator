@@ -1,6 +1,8 @@
 #ifndef LCD_H
 #define LCD_H
 
+#include <stdint.h>
+
 extern uint8_t lcd_data_read(void);
 extern void lcd_data_write(uint8_t data);
 
