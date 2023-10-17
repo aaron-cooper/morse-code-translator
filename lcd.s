@@ -1,7 +1,6 @@
 .include "zeropage.inc"
 .include "w65c22.inc"
 
-.export _lcd_short_wait
 .export _lcd_ir_read
 .export _lcd_ir_write
 .export _lcd_data_read
@@ -18,18 +17,6 @@
     lda w65c22_port_b_direction ;port b gets used for other stuff, so don't change bits 3-7
     ora #%00000111
     sta w65c22_port_b_direction ;port b gets used for other stuff, so don't change bits 3-7
-.endproc
-
-;waits for 38 or more cycles to pass, this should be enough time for the LCD
-;to complete all but the "Return home" instruction. Calling this is usually
-;easier than checking the busy flag
-.proc _lcd_short_wait: near
-    lda #10 ;2 cycles
-@L0: ;run loop 10 times, total of 9*3 + 2 cycles
-    dec ;2 cycles
-    bne @L0 ;3 except for final, which is 2
-    nop
-    rts ;at least 3
 .endproc
 
 ;write to the LCD's instruction register. This is used for most commands
