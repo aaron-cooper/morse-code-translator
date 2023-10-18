@@ -75,6 +75,7 @@ void main(void){
             lcd_putc('.');
         }
         if(buttons_pressed(button_c)){
+            char translation = '?'; //? is default if translation can't be found
             uint8_t pad_val; 
             pad_val = morse_key & 1;
             pad_val = !pad_val;
@@ -84,6 +85,7 @@ void main(void){
                 signals_entered++;
             }
             lcd_ddram_addr_set(0x40 + chars_entered);
+            if (morse_lookup[morse_key]) translation = morse_lookup[morse_key];
             lcd_putc(morse_lookup[morse_key]);
             lcd_ddram_addr_set(0);
             lcd_puts("       ");// blank out top line
