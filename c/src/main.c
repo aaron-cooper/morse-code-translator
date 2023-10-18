@@ -56,7 +56,12 @@ void main(void){
     button_tracker_state* button_c = buttons_new_tracker(BUTTON_C);
     uint8_t morse_key = 0;
     uint8_t signals_entered = 0;
-    uint8_t chars_entered = 0;
+    uint8_t translation_len = 0;
+    uint8_t translation_end = 0;
+
+    //ring buffer for storing the most recent 16 characters. 18 because we
+    //need space for 2 null terminators.
+    char* translations = calloc(sizeof(char), 18);
 
     timer_init();
     init_morse_lookup();
@@ -74,25 +79,42 @@ void main(void){
             morse_key <<=1;
             lcd_putc('.');
         }
-        if(buttons_pressed(button_c)){
+        if(buttons_pressed(button_c) || signals_entered == 6){
             char translation = '?'; //? is default if translation can't be found
-            uint8_t pad_val; 
-            pad_val = morse_key & 1;
-            pad_val = !pad_val;
-            while(signals_entered < 6){
-                morse_key <<= 1;
-                morse_key |= pad_val;
-                signals_entered++;
+            if (signals_entered < 6){
+                uint8_t pad_val; 
+                pad_val = morse_key & 1;
+                pad_val = !pad_val;
+                while(signals_entered < 6){
+                    morse_key <<= 1;
+                    morse_key |= pad_val;
+                    signals_entered++;
+                }
+                if (morse_lookup[morse_key]) translation = morse_lookup[morse_key];
             }
-            lcd_ddram_addr_set(0x40 + chars_entered);
-            if (morse_lookup[morse_key]) translation = morse_lookup[morse_key];
-            lcd_putc(morse_lookup[morse_key]);
+            lcd_ddram_addr_set(0x40);
+
+            translations[translation_end] = translation;
+            if (translation_len == 16){
+                if (translation_end == 16){ //we need to loop back around
+                    translation_end = 0;
+                }
+                else{
+                    translation_end++;
+                }
+                translations[translation_end] = 0;
+                lcd_puts(translations + translation_end + 1);
+            }
+            else {
+                translation_len++;
+                translation_end++;
+            }
+            lcd_puts(translations);
+            signals_entered = 0;
+            morse_key = 0;
             lcd_ddram_addr_set(0);
             lcd_puts("       ");// blank out top line
             lcd_ddram_addr_set(0);
-            chars_entered++;
-            signals_entered = 0;
-            morse_key = 0;
         }
     }
 
