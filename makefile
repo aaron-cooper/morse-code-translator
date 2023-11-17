@@ -45,4 +45,7 @@ $(BUILD_DIR):
 clean:
 	$(RM_P) $(BUILD_DIR) -r
 
-.PHONY: all
+install: all
+	minipro -p at28c256 -w $(PROGRAM:%=$(BUILD_DIR)/%)
+
+.PHONY: all install
