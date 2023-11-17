@@ -25,17 +25,19 @@ RM_P=rm
 
 all: $(BUILD_DIR) $(PROGRAM:%=$(BUILD_DIR)/%)
 
+-include $(BUILD_DIR)/_$(C_SOURCES:.c=.d)
+
 $(PROGRAM:%=$(BUILD_DIR)/%): custom.cfg $(ASM_SOURCES:%.s=$(BUILD_DIR)/%.o) $(C_SOURCES:%.c=$(BUILD_DIR)/_%.o) custom.lib
 	$(LD) $(LDFLAGS) -C $^ -o $@
 
 $(BUILD_DIR)/_%.s: $(C_SOURCE_DIR)/%.c
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $< -o $@ --create-dep $(@:.s=.d)
 
 $(BUILD_DIR)/%.o: $(BUILD_DIR)/%.s
-	$(CA) $(AFLAGS) $^ -o $@
+	$(CA) $(AFLAGS) $< -o $@
 
 $(BUILD_DIR)/%.o: $(ASM_SOURCE_DIR)/%.s
-	$(CA) $(AFLAGS) $^ -o $@
+	$(CA) $(AFLAGS) $< -o $@ --create-dep $(@:.o=.d)
 
 $(BUILD_DIR):
 	$(MKDIR_P) $(BUILD_DIR)
