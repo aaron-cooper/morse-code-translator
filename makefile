@@ -16,7 +16,7 @@ CFLAGS= --cpu 65c02 -I $(C_INCLUDE_DIR)
 LD=ld65
 LDFLAGS=
 
-C_SOURCES = main.c lcd.c time.c buttons.c
+C_SOURCES = main.c lcd.c time.c buttons.c morse_code.c
 ASM_SOURCES = input.s lcd.s time.s vectors.s
 
 MKDIR_P=mkdir
