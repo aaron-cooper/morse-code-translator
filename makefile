@@ -1,7 +1,7 @@
 
 
-BUILD_DIR=build #change me to change output directory
-PROGRAM=$(BUILD_DIR)/rom.bin #change me to change program file name
+BUILD_DIR=build
+PROGRAM=$(BUILD_DIR)/rom.bin
 
 C_DIR=c
 ASM_DIR=asm
@@ -31,7 +31,7 @@ MKDIR_P=mkdir -p #-p to create parents as needed
 RM_P=rm
 
 #build dirs listed first to ensure they exist
-all: $(BUILD_DIR_C) $(BUILD_DIR_ASM) $(PROGRAM)
+all: $(PROGRAM)
 
 #cc65 and ca65 will automatically generate dependencies for us!
 #include them if they exist, if not, they'll be generated below
@@ -39,11 +39,13 @@ all: $(BUILD_DIR_C) $(BUILD_DIR_ASM) $(PROGRAM)
 -include $(patsubst %.s,$(BUILD_DIR_ASM)/%.d,$(ASM_SOURCES))
 
 $(PROGRAM): custom.cfg $(ASM_SOURCES:%.s=$(BUILD_DIR_ASM)/%.o) $(C_SOURCES:%.c=$(BUILD_DIR_C)/%.o) custom.lib
+	@$(MKDIR_P) $(@D)
 	$(LD) $(LDFLAGS) -C $^ -o $@
 
 #--create-dep generates a makefile that specifies the files depended on
 #by target
 $(BUILD_DIR_C)/%.s: $(C_SOURCE)/%.c
+	@$(MKDIR_P) $(@D)
 	$(CC) $(CFLAGS) $< -o $@ --create-dep $(@:.s=.d)
 
 $(BUILD_DIR_C)/%.o: $(BUILD_DIR_C)/%.s
@@ -52,13 +54,8 @@ $(BUILD_DIR_C)/%.o: $(BUILD_DIR_C)/%.s
 #--create-dep generates a makefile that specifies the files depended on
 #by target
 $(BUILD_DIR_ASM)/%.o: $(ASM_SOURCE)/%.s
+	@$(MKDIR_P) $(@D)
 	$(CA) $(AFLAGS) $< -o $@ --create-dep $(@:.o=.d)
-
-$(BUILD_DIR_C):
-	$(MKDIR_P) $(BUILD_DIR_C)
-
-$(BUILD_DIR_ASM):
-	$(MKDIR_P) $(BUILD_DIR_ASM)
 
 clean:
 	$(RM_P) $(BUILD_DIR) -r
