@@ -30,6 +30,9 @@ MKDIR_P=mkdir -p #-p to create parents as needed
 
 RM_P=rm
 
+#program for loading binary into eeprom
+PROGRAMMER_P=minipro -p at28c256 -w
+
 #build dirs listed first to ensure they exist
 all: $(PROGRAM)
 
@@ -60,7 +63,8 @@ $(BUILD_DIR_ASM)/%.o: $(ASM_SOURCE)/%.s
 clean:
 	$(RM_P) $(BUILD_DIR) -r
 
-install: all
-	minipro -p at28c256 -w $(PROGRAM:%=$(BUILD_DIR)/%)
+# load eepron with program
+load: all
+	$(PROGRAMMER_P) $(PROGRAM)
 
-.PHONY: all install
+.PHONY: all load clean
